@@ -13,14 +13,14 @@ struct atributos_carro{
 /*=======================só pra separar uma coisa da outra=======================*/
 
 
-void carrega_dados(FILE *file)
+int carrega_dados(FILE *file)
 {
     int i;
     float valor_carro;
 
-    for(i=0; (!feof(file)); i++)//feof retorna 0 qnd não encontra o fim do arquivo por isso "!feof..." pq enquato não achar o fim
+    for(i=0; (!feof(file)); i++)/*feof retorna 0 qnd não encontra o fim do arquivo por isso "!feof..." pq enquato não achar o fim
                                 //vai retornar 0 mas vai ter o "!" e vai mudar pra 1 e executa o for
-                                //qnd achar o fim do arquivo vai retornar 1 q vai ser negado, vai mudar pra 0, e sai do for
+                                //qnd achar o fim do arquivo vai retornar 1 q vai ser negado, vai mudar pra 0, e sai do for*/
     {
         fscanf(file, "%s", carro[i].placa);//vai no arquivo e le a placa
         printf("%s\n", carro[i].placa);
@@ -28,11 +28,14 @@ void carrega_dados(FILE *file)
         printf("%s\n", carro[i].modelo);
         fscanf(file, "%f", &carro[i].valor);//vai no arquivo e le o valor
         printf("%f\n", carro[i].valor);
-
-        system("pause");
     }
 
+    system("pause");
+    /*retorna "i" para saber onde parou de caregar para se for preciso inserir um novo carro
+    //o for incrementa mais uma vez antes de sair, isso ia dar errado pra usar o i de indicie na outra função*/
+    return (i-1);
 }
+
 
 
 void nova_consulta()
@@ -61,38 +64,30 @@ void nova_consulta()
 
 
 
-void novo_carro(FILE *file)
+void novo_carro(FILE *file, int i)
 {
     int cont=0;
     char letra;
 
-    // vai percorrer caracter por caracter e qnd encontrar o \n vai contar mais uma linha
-    // dps faz cont+1 para gravar na proxima linha
-    while((letra=fgetc(file)!=EOF))
-    {
-        if(letra == '\n'){
-            cont++;
-        }
-    }
+    /* esse "i" vem sendo passado de função pq contém o indice do vetor de struct para inserir o novo carro*/
 
-    printf("%i", cont+1);
+    printf("i=%i\n", i);
 
     scanf("%*c");//só pra limpar buffer;
 
     printf("\nInforme a placa do carro:\n");
-    fgets(carro[cont+1].placa, 9, stdin);
-    //printf("%s\n", carro[cont+1].placa);
+    fgets(carro[i].placa, 9, stdin);
+    printf("%s\n", carro[i].placa);
 
     fflush(stdin);//só pra limpar buffer;
 
     printf("Informe o modedo do carro:\n");
-    fgets(carro[cont+1].modelo, 26, stdin);
-    //printf("%s\n", carro[cont+1].modelo);
+    fgets(carro[i].modelo, 26, stdin);
+    printf("%s\n", carro[i].modelo);
 
     printf("Informe o valor do carro:\n");
-    scanf("%f", &carro[cont+1].valor);
-    //printf("%.3f\n", carro[cont+1].valor);
-
+    scanf("%f", &carro[i].valor);
+    printf("%.3f\n", carro[i].valor);
 
     system("pause");
 
@@ -130,13 +125,13 @@ void relatorio()
 
 
 //direciona o programa para as determinadas funções
-int menu(FILE *file)
+int menu(FILE *file, int i)
 {
     char opcao;//para saber se pesquisa por placa ou modelo
 
     int  opc;//para menu
 
-    system("cls");
+    //system("cls");
 
     printf("===================================================\n");
     printf(">Escolha uma operacao:\n\n");
@@ -150,7 +145,7 @@ int menu(FILE *file)
 
     switch(opc){
         case 1:
-            novo_carro(file);
+            novo_carro(file, i);
             break;
         case 2:
             listar_todos();
@@ -181,18 +176,20 @@ int menu(FILE *file)
 int main()
 {
     FILE *arq_bd;
+    int i, aux=0;
 
     arq_bd=fopen("db-sistema-revenda.txt", "r+");//abre arquivo para leitura e escrita
-                                                 //e guarda no pronterio arq_bd
+                                         //e guarda no pronterio arq_bd
 
     if(arq_bd == NULL){//verifica se o ponteiro tem o endereço do arquivo
         printf("Erro ao abrir o arquivo.\n");
         exit(1);
     }
 
-    carrega_dados(arq_bd);//chama para carregar dados do arquivo para o programa
+    i=carrega_dados(arq_bd);/*chama para carregar dados do arquivo para o programa
+                            //recebe em "i" o indicie onde parou o vetor de struct*/
 
-    menu(arq_bd);//dentro do menu direcionar para as outras funções
+    menu(arq_bd, i);//dentro do menu direcionar para as outras funções
 
 
     fclose(arq_bd);
