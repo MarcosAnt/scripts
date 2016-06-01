@@ -18,14 +18,16 @@ void carrega_dados(FILE *file)
     int i;
     float valor_carro;
 
-    for(i=0; (feof(file)); i++)
+    for(i=0; (!feof(file)); i++)//feof retorna 0 qnd não encontra o fim do arquivo por isso "!feof..." pq enquato não achar o fim
+                                //vai retornar 0 mas vai ter o "!" e vai mudar pra 1 e executa o for
+                                //qnd achar o fim do arquivo vai retornar 1 q vai ser negado, vai mudar pra 0, e sai do for
     {
         fscanf(file, "%s", carro[i].placa);//vai no arquivo e le a placa
-        //printf("%s", carro[i].placa);
+        printf("%s\n", carro[i].placa);
         fscanf(file, "%s", carro[i].modelo);//vai no arquivo e le o modelo
-        //printf("%s", carro[i].modelo);
+        printf("%s\n", carro[i].modelo);
         fscanf(file, "%f", &carro[i].valor);//vai no arquivo e le o valor
-        //printf("%f", carro[i].valor);
+        printf("%f\n", carro[i].valor);
 
         system("pause");
     }
