@@ -53,7 +53,7 @@ void nova_consulta()
     }while((opc!='s')&&(opc!='n'));
 
     if(opc=='s'){//se sim, chama a main para começar tudo de novo
-        menu();
+        main();
     }else{
         printf("\n\t\tEncerrando programa...\n");//se não, encerra o programa
         //aqui vai ir uma função para gravar os dados no arquivo antes de sair
@@ -89,6 +89,8 @@ void novo_carro(FILE *file, int i)
     scanf("%f", &carro[i].valor);
     printf("%.3f\n", carro[i].valor);
 
+    //aqui vai ficar a chamada da fuura função para gravar dados no arquivo
+    
     system("pause");
 
     nova_consulta();
