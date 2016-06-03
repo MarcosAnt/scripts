@@ -1,39 +1,33 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>//para tolower
+#include <string.h>
 
-
-struct atributos_carro{
-        char placa[9];
+FILE *arq_bd;//COLOQUEI COMO GLOBAL PQ ELE FECHA NA CONSULTA E IA TER Q PASSAR ELE PRA TODO LUGAR :D
+int i;
+struct carro{
+        char placa[15];
         char modelo[26];
         float valor;
-    }carro[100];
-
+    };
+struct carro ca[100]; //COLOQUEI ASSIM PQ NAO TAVA SALVANDO NA STRUCT, SÓ APARECIA NA HORA DE CARREGAR
 
 /*=======================só pra separar uma coisa da outra=======================*/
 
 
-int carrega_dados(FILE *file)
+void carrega_dados()//MUDEI PRA VOID PQ ELE NAO RETORNA NADA :P
 {
-    int i;
-    float valor_carro;
-
-    for(i=0; (!feof(file)); i++)/*feof retorna 0 qnd não encontra o fim do arquivo por isso "!feof..." pq enquato não achar o fim
+    for(i=0; (!feof(arq_bd)); i++)/*feof retorna 0 qnd não encontra o fim do arquivo por isso "!feof..." pq enquato não achar o fim
                                 //vai retornar 0 mas vai ter o "!" e vai mudar pra 1 e executa o for
                                 //qnd achar o fim do arquivo vai retornar 1 q vai ser negado, vai mudar pra 0, e sai do for*/
     {
-        fscanf(file, "%s", carro[i].placa);//vai no arquivo e le a placa
-        printf("%s\n", carro[i].placa);
-        fscanf(file, "%s", carro[i].modelo);//vai no arquivo e le o modelo
-        printf("%s\n", carro[i].modelo);
-        fscanf(file, "%f", &carro[i].valor);//vai no arquivo e le o valor
-        printf("%f\n", carro[i].valor);
+        fscanf(arq_bd, "%s", ca[i].placa);//vai no arquivo e le a placa
+        fscanf(arq_bd, "%s", ca[i].modelo);//vai no arquivo e le o modelo
+        fscanf(arq_bd, "%f", &ca[i].valor);//vai no arquivo e le o valor
     }
-
-    system("pause");
-    /*retorna "i" para saber onde parou de caregar para se for preciso inserir um novo carro
-    //o for incrementa mais uma vez antes de sair, isso ia dar errado pra usar o i de indicie na outra função*/
-    return (i-1);
+    i--;
+    /*o for incrementa mais uma vez antes de sair, isso ia dar errado pra usar o i
+    de indicie na outra função se for preciso inserir um novo carro*/
 }
 
 
@@ -53,6 +47,7 @@ void nova_consulta()
     }while((opc!='s')&&(opc!='n'));
 
     if(opc=='s'){//se sim, chama a main para começar tudo de novo
+            fclose(arq_bd);//COLOQUEI O TRECO DE FECHAR AQUI, PQ ANTES ELE NEM CHEGAVA NA LINHA DE FECHAR E NAO SALVAVA NOVAS INFORMAÇÕES
         main();
     }else{
         printf("\n\t\tEncerrando programa...\n");//se não, encerra o programa
@@ -64,33 +59,29 @@ void nova_consulta()
 
 
 
-void novo_carro(FILE *file, int i)
+void novo_carro()
 {
-    int cont=0;
-    char letra;
-
-    /* esse "i" vem sendo passado de função pq contém o indice do vetor de struct para inserir o novo carro*/
+    float preco;
+    char letra, placa[9], modelo[26];//CRIEI ESSAS VARIAVEIS DE USO TEMPORARIO, JA Q PRA IR PRA STRUCT ELE LE DIRETO DO ARQUIVO
 
     printf("i=%i\n", i);
 
     scanf("%*c");//só pra limpar buffer;
 
     printf("\nInforme a placa do carro:\n");
-    fgets(carro[i].placa, 9, stdin);
-    printf("%s\n", carro[i].placa);
+    gets(placa);//NAO TENHO CERTEZA PQ MUDEI AQUI, MAS ACHO Q ERA PQ N TAVA ESCREVENDO NO ARQUIVO
+    fprintf(arq_bd,"%s\n", placa);
 
     fflush(stdin);//só pra limpar buffer;
 
-    printf("Informe o modedo do carro:\n");
-    fgets(carro[i].modelo, 26, stdin);
-    printf("%s\n", carro[i].modelo);
+    printf("Informe o modelo do carro:\n");
+    gets(modelo);//AQUI TBM
+    fprintf(arq_bd,"%s\n", modelo);
 
     printf("Informe o valor do carro:\n");
-    scanf("%f", &carro[i].valor);
-    printf("%.3f\n", carro[i].valor);
+    scanf("%f", &preco);
+    fprintf(arq_bd,"%.3f\n", preco);
 
-    //aqui vai ficar a chamada da fuura função para gravar dados no arquivo
-    
     system("pause");
 
     nova_consulta();
@@ -101,7 +92,16 @@ void novo_carro(FILE *file, int i)
 
 void listar_todos()
 {
+    int a;
 
+    printf("\n");//só pra pular linha msm
+    for(a=0;a<i;a++)
+    {
+        printf("CARRO %i:\n", a+1);
+        printf("Placa: %s\n", ca[a].placa);
+        printf("Modelo: %s\n", ca[a].modelo);
+        printf("Valor: %.3f\n\n", ca[a].valor);}
+    system("pause");
     nova_consulta();
 }
 
@@ -111,7 +111,42 @@ void listar_todos()
 //recebe em opc o parâmetro para saber se pesquisa por placa ou por modelo
 void pesquisar_carro(char opc)
 {
+    char mod_carro[26], placa_carro[9];
+    int cont, erro=0;
 
+    if(opc=='m'){
+        printf("\nInforme o modelo que deseja:\n");
+        scanf("%s", mod_carro);
+
+        for(cont=0; cont<i; cont++)
+        {   /*o strcmp retorna 0 qnd as strings são iguais por isso a comparação*/
+            if(strcmp(ca[cont].modelo, mod_carro)==0){
+                printf("\n%s\n", ca[cont].placa);
+                printf("%s\n", ca[cont].modelo);
+                printf("%.3f\n\n", ca[cont].valor);
+            }else{
+                erro=1;//se não achar nada muda aqui
+            }
+        }
+    }else{
+        printf("\nInforme a placa que deseja:\n");
+        scanf("%s", placa_carro);
+
+        for(cont=0; cont<i; cont++)
+        {   /*o strcmp retorna 0 qnd as strings são iguais por isso a comparação*/
+            if(strcmp(ca[cont].placa, placa_carro)==0){
+                printf("\n%s\n", ca[cont].placa);
+                printf("%s\n", ca[cont].modelo);
+                printf("%.3f\n\n", ca[cont].valor);
+            }else{
+                erro=1;
+            }
+        }
+    }
+    if(erro){
+        printf("\n\nNenhum registro encontrado.\n\n");
+    }
+    system("pause");
     nova_consulta();
 }
 
@@ -127,7 +162,7 @@ void relatorio()
 
 
 //direciona o programa para as determinadas funções
-int menu(FILE *file, int i)
+void menu()
 {
     char opcao;//para saber se pesquisa por placa ou modelo
 
@@ -147,14 +182,17 @@ int menu(FILE *file, int i)
 
     switch(opc){
         case 1:
-            novo_carro(file, i);
+            novo_carro();
             break;
         case 2:
             listar_todos();
             break;
         case 3:
             printf("\n\nPesquisar por:\n[p] Placa\n[m] Modelo\n");
-            scanf("%*c%c", &opcao);
+            do{//valida entrada
+                scanf("%*c%c", &opcao);
+                opcao=tolower(opcao);
+            }while((opcao!='m')&&(opcao!='p'));
             pesquisar_carro(opcao);
             break;
         case 4:
@@ -177,10 +215,9 @@ int menu(FILE *file, int i)
 
 int main()
 {
-    FILE *arq_bd;
-    int i, aux=0;
+    int aux=0;
 
-    arq_bd=fopen("db-sistema-revenda.txt", "r+");//abre arquivo para leitura e escrita
+    arq_bd=fopen("db-sistema-revenda.txt", "a+");//abre arquivo para leitura e escrita
                                          //e guarda no pronterio arq_bd
 
     if(arq_bd == NULL){//verifica se o ponteiro tem o endereço do arquivo
@@ -188,11 +225,9 @@ int main()
         exit(1);
     }
 
-    i=carrega_dados(arq_bd);/*chama para carregar dados do arquivo para o programa
+    carrega_dados();/*chama para carregar dados do arquivo para o programa
                             //recebe em "i" o indicie onde parou o vetor de struct*/
 
-    menu(arq_bd, i);//dentro do menu direcionar para as outras funções
+    menu();//dentro do menu direcionar para as outras funções
 
-
-    fclose(arq_bd);
 }
