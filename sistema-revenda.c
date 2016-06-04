@@ -11,7 +11,8 @@ struct carro{
         float valor;
     };
 struct carro ca[100]; //COLOQUEI ASSIM PQ NAO TAVA SALVANDO NA STRUCT, SÓ APARECIA NA HORA DE CARREGAR
-
+//TTEEESSSTAAANDDDOO
+//TESTE TESTE TESTE
 /*=======================só pra separar uma coisa da outra=======================*/
 
 
