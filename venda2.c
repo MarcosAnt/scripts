@@ -1,12 +1,12 @@
 /*
 ===========================================================
-==			      .: Sistema de Revenda de Carros :.            ==
-==														                                         ==
+==	     .: Sistema de Revenda de Carros :.          ==
+==							 ==
 ===========================================================
 ==  Objetivo: Impantar sistema CRUD para estudos.        ==
 ==  Criado: 18/06/2016                                   ==
 ==  Autores: Maria Eduarda - github.com/garciamaria      ==
-==			        Marcos Antonio - github.com/MacosAnt        ==
+==	     Marcos Antonio - github.com/MacosAnt        ==
 ===========================================================
 */
 
@@ -91,8 +91,8 @@ void nova_consulta()
     }while((opc!='s')&&(opc!='n'));
 
     if(opc=='s'){//se sim, chama a menu para começar tudo de novo
-        menu();}
-    else{
+        menu();
+	}else{
         printf("\n\t\tEncerrando programa...\n");//se não, encerra o programa
         fclose(arq_bd);
         fclose(arq_ve);
@@ -378,7 +378,7 @@ void relatorio()
 
 //direciona o programa para as determinadas funções
 int menu(){
-char opcao;//para saber se pesquisa por placa ou modelo
+	char opcao;//para saber se pesquisa por placa ou modelo
 
     int  opc;//para menu
 
@@ -423,7 +423,7 @@ char opcao;//para saber se pesquisa por placa ou modelo
         default:
             printf("\n\t\tOps... Opcao invalida.\n\t\tTente Novamente.\n\n");
             system("pause");
-            main();
+            menu();
             break;
     }
 }
