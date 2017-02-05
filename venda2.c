@@ -1,14 +1,15 @@
 /*
-//                            > > Sistema Revenda < <
-//
-// Sistema básico simula revenda de automóveis.
-// Utiliza conceito CRUD.
-// CRUD: 
-//      Creat (criar/escrever)
-//      Read (ler)
- //     Update (modificar/atualizar)
- //     Delete (apagar).
+===========================================================
+==			      .: Sistema de Revenda de Carros :.            ==
+==														                                         ==
+===========================================================
+==  Objetivo: Impantar sistema CRUD para estudos.        ==
+==  Criado: 18/06/2016                                   ==
+==  Autores: Maria Eduarda - github.com/garciamaria      ==
+==			        Marcos Antonio - github.com/MacosAnt        ==
+===========================================================
 */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>//para tolower
@@ -17,15 +18,15 @@
 FILE *arq_bd, *arq_ve;//COLOQUEI COMO GLOBAL PQ ELE FECHA NA CONSULTA E IA TER Q PASSAR ELE PRA TODO LUGAR :D
 int i, j;
 struct carro{
-        char placa[10];
-        char modelo[26];
-        char valor[20];
-    };
-struct carro ca[100]; //COLOQUEI ASSIM PQ NAO TAVA SALVANDO NA STRUCT, SÓ APARECIA NA HORA DE CARREGAR
+	char placa[10];
+	char modelo[26];
+	char valor[20];
+};
+struct carro ca[100]; //COLOQUEI ASSIM PQ NAO TAVA SALVANDO NA STRUCT, SÃ“ APARECIA NA HORA DE CARREGAR
 struct carro ve[100];
 
 
-/*=======================FUNÇÕES PARA CARREGAR E GRAVR DADOS=======================*/
+/*=======================FUNÃ‡Ã•ES PARA CARREGAR E GRAVR DADOS=======================*/
 
 
 void carrega_dados()//MUDEI PRA VOID PQ ELE NAO RETORNA NADA :P
@@ -33,12 +34,14 @@ void carrega_dados()//MUDEI PRA VOID PQ ELE NAO RETORNA NADA :P
     arq_bd=fopen("db-sistema-revenda.txt", "r");//abre arquivo para leitura e escrita
     arq_ve=fopen("carros-vendidos.txt", "r");   //e guarda no pronterio arq_bd
 
-    if((arq_bd == NULL)||(arq_ve == NULL)){//verifica se o ponteiro tem o endereço do arquivo
-        printf("Erro ao abrir o arquivo.\n");
-        exit(1);
+    if(arq_bd==NULL){
+        arq_bd=fopen("db-sistema-revenda.txt", "w");
+    }
+    if(arq_ve==NULL){
+        arq_ve=fopen("carros-vendidos.txt", "w");
     }
 
-    for(i=0; (!feof(arq_bd)); i++)/*feof retorna 0 qnd não encontra o fim do arquivo por isso "!feof..." pq enquato não achar o fim
+    for(i=0; (!feof(arq_bd)); i++)/*feof retorna 0 qnd nÃ£o encontra o fim do arquivo por isso "!feof..." pq enquato nÃ£o achar o fim
                                 //vai retornar 0 mas vai ter o "!" e vai mudar pra 1 e executa o for
                                 //qnd achar o fim do arquivo vai retornar 1 q vai ser negado, vai mudar pra 0, e sai do for*/
     {
@@ -66,13 +69,13 @@ void carrega_dados()//MUDEI PRA VOID PQ ELE NAO RETORNA NADA :P
     i--;
     j--;
     /*o for incrementa mais uma vez antes de sair, isso ia dar errado pra usar o i
-    de indicie na outra função se for preciso inserir um novo carro*/
+    de indicie na outra funÃ§Ã£o se for preciso inserir um novo carro*/
 
 }
 
 
 
-/*=======================só pra separar uma coisa da outra=======================*/
+/*=======================sÃ³ pra separar uma coisa da outra=======================*/
 
 
 void nova_consulta()
@@ -87,10 +90,10 @@ void nova_consulta()
         opc=tolower(opc);
     }while((opc!='s')&&(opc!='n'));
 
-    if(opc=='s'){//se sim, chama a main para começar tudo de novo
+    if(opc=='s'){//se sim, chama a menu para comeÃ§ar tudo de novo
         menu();}
     else{
-        printf("\n\t\tEncerrando programa...\n");//se não, encerra o programa
+        printf("\n\t\tEncerrando programa...\n");//se nÃ£o, encerra o programa
         fclose(arq_bd);
         fclose(arq_ve);
         exit(0);
@@ -102,43 +105,49 @@ void nova_consulta()
 
 void novo_carro()
 {
-char res, placa[9], modelo[26], preco[20];//CRIEI ESSAS VARIAVEIS DE USO TEMPORARIO, JA Q PRA IR PRA STRUCT ELE LE DIRETO DO ARQUIVO
-int lower=0, cont;
+	char res, placa[9], modelo[26], preco[20];//CRIEI ESSAS VARIAVEIS DE USO TEMPORARIO, JA Q PRA IR PRA STRUCT ELE LE DIRETO DO ARQUIVO
+	int lower=0, cont;
+	
+    if(i==0)
+        arq_bd=fopen("db-sistema-revenda.txt", "w");//abre arquivo para leitura e escrita
+    else
+        arq_bd=fopen("db-sistema-revenda.txt", "a+");//abre arquivo para leitura e escrita
 
-    arq_bd=fopen("db-sistema-revenda.txt", "a+");//abre arquivo para leitura e escrita
-
-    if(arq_bd == NULL){//verifica se o ponteiro tem o endereço do arquivo
+    if(arq_bd == NULL){//verifica se o ponteiro tem o endereÃ§o do arquivo
         printf("Erro ao abrir o arquivo.\n");
         exit(1);
     }
 
 
-    scanf("%*c");//só pra limpar buffer;
+    scanf("%*c");//sÃ³ pra limpar buffer;
 
 volt:
     printf("\nInforme a placa do carro:\n");
+    printf("EX:.(aaa-0000)\n");
     fflush(stdin);
     gets(placa);//NAO TENHO CERTEZA PQ MUDEI AQUI, MAS ACHO Q ERA PQ N TAVA ESCREVENDO NO ARQUIVO
-    placa[strlen(placa)-1]='\0';
-      while(placa[lower]){
+    
+	while(placa[lower]){
             placa[lower]=tolower(placa[lower]);
-            lower++;}
+            lower++;
+	}
 
-        for(cont=0; cont<i; cont++)
-            if(strncmp(ca[cont].placa, placa,strlen(placa))==0){
-               printf("\n CARRO J%c CADASTRADO!\n", 181);
-               printf("\nGostaria de cadastrar um outro carro? (s/n)\n");
-               scanf("%c", &res);
-               res=tolower(res);
-                    if(res=='n')
-                        nova_consulta();
-                        else
-                            if(res=='s')
-                                goto volt;}
+    for(cont=0; cont<i; cont++)
+		if(strncmp(ca[cont].placa, placa,strlen(placa))==0){
+			printf("\n CARRO J%c CADASTRADO!\n", 181);
+			printf("\nGostaria de cadastrar um outro carro? (s/n)\n");
+			scanf("%c", &res);
+			res=tolower(res);
+			if(res=='n')
+				nova_consulta();
+			else
+				if(res=='s')
+					goto volt;
+		}
 
     fprintf(arq_bd,"%s\n", placa);
 
-    fflush(stdin);//só pra limpar buffer;
+    fflush(stdin);//sÃ³ pra limpar buffer;
 
     printf("Informe o modelo do carro:\n");
     gets(modelo);//AQUI TBM
@@ -151,7 +160,6 @@ volt:
     system("pause");
     fclose(arq_bd);
     carrega_dados();
-    i++;
     nova_consulta();
 }
 
@@ -163,23 +171,23 @@ void listar_todos()
 {
     int a;
     system("cls");
-    printf("\n");//só pra pular linha msm
+    printf("\n");//sÃ³ pra pular linha msm
     if(i==0){
         printf("=================================================================\n");
         printf("\t\t   .:NENHUM REGISTRO DISPON%cVEL:.            \n", 214);
-        printf("=================================================================\n");}
-    else{
+        printf("=================================================================\n");
+    }else{
         printf("=============================================================\n");
         printf("\t\t   .:AUTOM%cVEIS DISPON%cVEIS:.            \n", 224,214);
         printf("=============================================================\n");
-            for(a=0;a<i;a++)
-            {
-                printf("\t\t  CARRO %i:\n", a+1);
-                printf("\t\t  Placa: %s\n", ca[a].placa);
-                printf("\t\t  Modelo: %s\n", ca[a].modelo);
-                printf("\t\t  Valor: %s\n\n", ca[a].valor);
-            }
-        }
+		for(a=0;a<i;a++)
+		{
+			printf("\t\t  CARRO %i:\n", a+1);
+			printf("\t\t  Placa: %s\n", ca[a].placa);
+			printf("\t\t  Modelo: %s\n", ca[a].modelo);
+			printf("\t\t  Valor: %s\n\n", ca[a].valor);
+		}
+	}
     system("pause");
     nova_consulta();
 }
@@ -189,11 +197,20 @@ void listar_todos()
 
 void vender(int ind)
 {
+    int aux;
 
-int aux;
+    fclose(arq_bd);
+    arq_bd=fopen("db-sistema-revenda.txt", "a+");//abre arquivo para leitura e escrita
+     if(arq_bd == NULL){//verifica se o ponteiro tem o endereÃ§o do arquivo
+        printf("Erro ao abrir o arquivo.\n");
+        exit(1);
+    }
+
     strcpy(ve[j].placa,ca[ind].placa);
     strcpy(ve[j].modelo,ca[ind].modelo);
     strcpy(ve[j].valor,ca[ind].valor);
+    fprintf(arq_bd, "%c", 03);
+    fclose(arq_bd);
 
     for(;ind<i;ind++)//vai sobrescrever o carro vendido
     {
@@ -201,33 +218,36 @@ int aux;
         strcpy(ca[ind].modelo,ca[ind+1].modelo);
         strcpy(ca[ind].valor,ca[ind+1].valor);
     }
-i--;
+    
+	i--;
 
-fclose(arq_bd);
-fclose(arq_ve);
+    fclose(arq_ve);
+
     arq_bd=fopen("db-sistema-revenda.txt", "w");//abre arquivo para leitura e escrita
     arq_ve=fopen("carros-vendidos.txt", "a+");   //e guarda no pronterio arq_bd
 
-    if((arq_bd == NULL)||(arq_ve == NULL)){//verifica se o ponteiro tem o endereço do arquivo
+    if((arq_bd == NULL)||(arq_ve == NULL)){//verifica se o ponteiro tem o endereÃ§o do arquivo
         printf("Erro ao abrir o arquivo.\n");
         exit(1);
     }
-        for(aux=0;aux<i;aux++){
-            fprintf(arq_bd, "%s\n", ca[aux].placa);
-            fprintf(arq_bd, "%s\n", ca[aux].modelo);
-            fprintf(arq_bd, "%s\n", ca[aux].valor);}
+	
+	for(aux=0;aux<i;aux++){
+		fprintf(arq_bd, "%s\n", ca[aux].placa);
+		fprintf(arq_bd, "%s\n", ca[aux].modelo);
+		fprintf(arq_bd, "%s\n", ca[aux].valor);
+	}
 
     fprintf(arq_ve, "%s\n", ve[j].placa);
     fprintf(arq_ve, "%s\n", ve[j].modelo);
     fprintf(arq_ve, "%s\n", ve[j].valor);
-j++;
-fclose(arq_bd);
-fclose(arq_ve);
-carrega_dados();
+	j++;
+	fclose(arq_bd);
+	fclose(arq_ve);
+	carrega_dados();
 }
 
 
-//recebe em opc o parâmetro para saber se pesquisa por placa ou por modelo
+//recebe em opc o parÃ¢metro para saber se pesquisa por placa ou por modelo
 void pesquisar_carro(char opc)
 {
 char mod_carro[26], placa_carro[9];
@@ -237,6 +257,7 @@ int cont, k=0, l=0, lower=0;
     case 'm':
 
         printf("\nInforme o modelo que deseja:\n");
+		printf("Ex.: mustang\n");
         scanf("%s", mod_carro);
         while(mod_carro[lower]){
             mod_carro[lower]=tolower(mod_carro[lower]);
@@ -244,74 +265,91 @@ int cont, k=0, l=0, lower=0;
         }
         mod_carro[strlen(mod_carro)-1] = '\0';
         for(cont=0; cont<i; cont++)
-            /*o strcmp retorna 0 qnd as strings são iguais por isso a comparação*/
+            /*o strcmp retorna 0 qnd as strings sÃ£o iguais por isso a comparaÃ§Ã£o*/
             if(strncmp(ca[cont].modelo, mod_carro, strlen(mod_carro))==0){
                 l++;
                 if(l==1)
                     printf("\n\t\tCARROS PARA VENDA:\n");
+				
+                printf("\n\tCARRO %i: \n", cont+1);
                 printf("\tPalaca: %s\n", ca[cont].placa);
                 printf("\tModelo: %s\n", ca[cont].modelo);
-                printf("\tValor: %s\n\n", ca[cont].valor);}
+                printf("\tValor: %s\n\n", ca[cont].valor);
+			}
 
-                for(cont=0; cont<i; cont++)
-                    if(strncmp(ve[cont].modelo, mod_carro, strlen(mod_carro))==0){
-                    k++;
-                    if(k==1)
-                        printf("\n\t\tCARROS VENDIDOS:");
-                    printf("\n\tCARRO: %i\n", k);
-                    printf("\tPlaca: %s\n", ve[cont].placa);
-                    printf("\tModelo: %s\n", ve[cont].modelo);
-                    printf("\tValor: %s\n\n", ve[cont].valor);}
+		for(cont=0; cont<i; cont++)
+			if(strncmp(ve[cont].modelo, mod_carro, strlen(mod_carro))==0){
+				k++;
+				if(k==1)
+					printf("\n\t\tCARROS VENDIDOS:");
+				
+				printf("\n\tCARRO %i:\n", cont+1);
+				printf("\tPlaca: %s\n", ve[cont].placa);
+				printf("\tModelo: %s\n", ve[cont].modelo);
+				printf("\tValor: %s\n\n", ve[cont].valor);
+			}
 
 
-       if((l==0)&&(k==0))
-       printf("\n\nNenhum registro encontrado.\n\n");
-         system("pause");
-         nova_consulta();
+		if((l==0)&&(k==0))
+			printf("\n\nNenhum registro encontrado.\n\n");
+		system("pause");
+		nova_consulta();
     break;
 
     case 'p':
 
         printf("\nInforme a placa que deseja:\n");
+		printf("Ex.: aaa-0000\n");
         scanf("%s", placa_carro);
         while(placa_carro[lower]){
             placa_carro[lower]=tolower(placa_carro[lower]);
             lower++;
         }
-        printf("%s\n", placa_carro);
-        system("pause");
         placa_carro[strlen(placa_carro)-1]='\0';
-        for(cont=0; cont<i; cont++){
-            if(strncmp(ca[cont].placa, placa_carro,strlen(placa_carro))==0){
-                k++;
-                printf("\n\tCarro %i:\n", k);
-                printf("\tPlaca: %s\n", ca[cont].placa);
-                printf("\tModelo: %s\n", ca[cont].modelo);
-                printf("\tValor: %s\n\n", ca[cont].valor);
+        for(cont=0; cont<i; cont++)
+            if(strncmp(ve[cont].placa, placa_carro, strlen(placa_carro))==0){
+                    k++;
+                    printf("\n\t\tCARRO VENDIDO:");
+                    printf("\n\tCARRO %i:\n", cont+1);
+                    printf("\tPlaca: %s\n", ve[cont].placa);
+                    printf("\tModelo: %s\n", ve[cont].modelo);
+                    printf("\tValor: %s\n\n", ve[cont].valor);
+			}else{
 
-                printf("Gostaria de vender este carro?\n[s]Sim\t[n]Nao\n");
-                scanf("%*c%c", &opc);
+				for(cont=0; cont<i; cont++){
+					if(strncmp(ca[cont].placa, placa_carro,strlen(placa_carro))==0){
+						k++;
+						printf("\n\t\tCARRO DISPONIVEL:\n");
+						printf("\tPlaca: %s\n", ca[cont].placa);
+						printf("\tModelo: %s\n", ca[cont].modelo);
+						printf("\tValor: %s\n\n", ca[cont].valor);
 
-                if(opc=='s'){
-                    vender(cont);//passa o indice onde achou o carro q quer vender
-                    printf("\t\t.: VENDA REGISTRADA COM SUCESSO :.\n\n");
-                    carrega_dados();
-                    break;}
-            }
-        }
+						printf("Gostaria de vender este carro?\n[s]Sim\t[n]Nao\n");
+						scanf("%*c%c", &opc);
 
-    if(k==0){
-        printf("\n\nNenhum registro encontrado.\n\n");
-    }
-    system("pause");
-    nova_consulta();
-    break;
+						if(opc=='s'){
+							vender(cont);//passa o indice onde achou o carro q quer vender
+							system("cls");
+							printf("\t\t.: VENDA REGISTRADA COM SUCESSO :.\n\n");
+							carrega_dados();
+							break;
+						}
+					}
+				}
+
+				if(k==0){
+					printf("\n\nNenhum registro encontrado.\n\n");
+				}
+			}
+		system("pause");
+		nova_consulta();
+		break;
+	}
 }
-}
 
 
-//talvez seja bom usar uma variável gobla para guardar quanto foi vendido para montar o relatorio
-//ou guadar isso por último no arquivo
+//talvez seja bom usar uma variÃ¡vel gobla para guardar quanto foi vendido para montar o relatorio
+//ou guadar isso por Ãºltimo no arquivo
 void relatorio()
 {
     float tot_vendas=0;
@@ -320,13 +358,13 @@ void relatorio()
     printf("==========================================\n");
     printf("\t  .:VENDAS EFETUADAS:.                \n");
     printf("==========================================\n");
-    printf("\n");//só pra pular linha msm
+    printf("\n");//sÃ³ pra pular linha msm
     for(b=0;b<j;b++)
     {
         printf("\tCARRO %i:\n", b+1);
-        printf("\tPlaca: %s\n", ve[b].placa);
-        printf("\tModelo: %s\n", ve[b].modelo);
-        printf("\tValor: %s\n\n", ve[b].valor);
+        //printf("\tPlaca: %s\n", ve[b].placa);
+        printf("\tModelo/Valor: %s - ", ve[b].modelo);
+        printf("%s\n\n", ve[b].valor);
         tot_vendas+=(atof(ve[b].valor));
     }
     printf("==========================================\n");
@@ -338,7 +376,7 @@ void relatorio()
 
 
 
-//direciona o programa para as determinadas funções
+//direciona o programa para as determinadas funÃ§Ãµes
 int menu(){
 char opcao;//para saber se pesquisa por placa ou modelo
 
@@ -350,7 +388,7 @@ char opcao;//para saber se pesquisa por placa ou modelo
     printf("=======  .: SISTEMA REVENDA DE AUTOM%cVEIS :.  =======\n", 224);
     printf("==========                                 ==========\n");
     printf("=====================================================\n");
-    printf(">Escolha uma operacao:\n\n");
+    printf("\n>Escolha uma operacao:\n\n");
     printf("\t[1] Novo Carro\n");
     printf("\t[2] Listar Todos\n");
     printf("\t[3] Pesquisar Carro\n");
@@ -379,7 +417,7 @@ char opcao;//para saber se pesquisa por placa ou modelo
             break;
         case 5:
             printf("\n\t\tEncerrando programa...\n");
-            //aqui vai ir uma função para gravar os dados no arquivo antes de sair
+            //aqui vai ir uma funÃ§Ã£o para gravar os dados no arquivo antes de sair
             exit(0);
             break;
         default:
@@ -397,6 +435,6 @@ int main()
 
     carrega_dados();/*chama para carregar dados do arquivo para o programa no vetor de struct*/
 
-    menu();//dentro do menu direcionar para as outras funções
+    menu();//dentro do menu direcionar para as outras funÃ§Ãµes
 
 }
