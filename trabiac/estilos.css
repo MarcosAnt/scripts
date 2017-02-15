@@ -1,0 +1,37 @@
+#login-sm6{
+	width:       60%;
+	border-left: 1px solid black;
+}
+
+#pag{
+	/*background-color: #4FA7CA;*/
+}
+
+.navbar-footer{
+	text-align: center;
+	color:      #1C1C1C;
+	display:    inline;
+}
+
+/*Inicio CSS para data dos eventos*/
+.date-ev{
+	margin: 0px;
+	padding: 0px;
+	border: 3px solid black;
+	background-color: white;
+	border-radius: 5px;
+	text-align: center;
+}
+
+.date-ev>h1, .date-ev>h2{
+	margin: 0px;
+	padding: 0px;
+}
+/*Fim CSS para data dos eventos*/
+
+/*Inicio CSS para descrição dos eventos*/
+.btn-right{
+	padding-left: 85%;
+	padding-right: 1%;
+}
+/*fim CSS para descrição dos eventos*/

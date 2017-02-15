@@ -1,0 +1,252 @@
+<?php 
+    require "footer.php";
+    require "valida_login.php";        
+    function verifica_campo($texto){
+        $texto = trim($texto);
+        $texto = stripslashes($texto);
+        $texto = htmlspecialchars($texto);
+        return $texto;
+    }
+
+    $input_vazio=$falha_login=false;
+    if(isset($_SESSION["status"])&&$_SESSION["status"]=="on"){
+        if($_SERVER["REQUEST_METHOD"]=="POST"&&isset($_PSOT["kit"])&&$_PSOT["kit"]!=""&&isset($_PSOT["forma_pgto"])&&$_PSOT["forma_pgto"]!=""&&isset($_PSOT["modalidade"])&&$_PSOT["modalidade"]!="")
+            header("Location: /trabiac/inscreve_na_maratona.php?idmaratona=<?php echo $id ?>&forma_pgto=<?php echo $forma_pgto?>&modaldiade=<?php echo $modaldiade?>&kit=<?php echo $kit?>?idusuario=".$_SESSION["idusr"]);
+        else
+            $input_vazio=true;
+    }else{
+        $falha_login=true;
+    }
+//estabelecendo conexão
+//makerun é minha db e maruve é minha senha xD
+    $strconn = "host=localhost port=5432 dbname=makerun user=postgres password=Maruve"; 
+	$dbconn = pg_connect($strconn);
+    if (!$dbconn) {
+        die("Conexao nao estabelecida.");
+    }
+if ($_SERVER["REQUEST_METHOD"] == "GET" || $_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_GET["id"])) {
+        $id = pg_escape_string(verifica_campo($_GET["id"]));
+        //comando
+        $sql = "SELECT * FROM maratona WHERE idmaratona = $id";
+        //query
+        $resultado_busca_maratonas = pg_query($dbconn, $sql);
+        if (!$resultado_busca_maratonas) {
+            die("Problemas no select pendentes.");
+        }
+    }elseif(isset($_POST["id"])) {
+        $id = pg_escape_string(verifica_campo($_POST["id"]));
+        //comando
+        $sql = "SELECT * FROM maratona WHERE idmaratona = $id";
+        //query
+        $resultado_busca_maratonas = pg_query($dbconn, $sql);
+        if (!$resultado_busca_maratonas) {
+            die("Problemas no select pendentes.");
+        }
+    }
+}
+//fechando conexão
+    pg_close($dbconn);
+?>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+	<title>Calendário de Eventos | MakeRun</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"><!--CSS do Bootstrap-->
+	<link rel="stylesheet" href="estilos.css">
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script><!--JavaScript do Bootstrap-->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script><!--jQuerry-->
+	<style>
+		#logoNavbar{
+			height: 100%;
+			margin: 3px;
+		}
+        .msg_erro{
+            font-size: 7px;
+            text-align: center;
+            border-radius: 3px;
+            border: 1px solid yellow;
+            background-color: #ffffb3;
+        }
+        .msg_erro_input_vazio{
+            color: red;
+            font-size: 7px;
+            text-align: center;
+            border-radius: 3px;
+            border: 1px solid red;
+            background-color: #fedede;
+            margin: 10px;
+        }
+	</style>
+</head>
+<body id="pag">
+    <div class="container">
+		<header class="menu">
+			<nav class="navbar navbar-default">
+				<div class="container-fluid">
+					<div class="navbar-header">
+						<a class="navbar-brand" href="home.php">
+							<img id="logoNavbar" src="img/icone.png" alt="MakeRun"/>
+						</a>
+					</div>
+					<ul class="nav navbar-nav">
+					  <li><a href="home.php">Início</a></li>
+					  <li><a href="pag-infos.php">Informações</a></li>
+					  <li class="active"><a href="calendario.php">Calendário</a></li>
+					  <li><a href="login.php">Conta</a></li>
+					</ul>
+				</div>
+			</nav>
+		</header>
+		<div class="jumbotron">
+            <?php if($input_vazio): ?>
+                <div calss="col-sm-12"><p class="msg_erro_input_vazio" style="margin: 0px">Preencha todos os campos!!</p></div>
+            <?php elseif($falha_login): ?>
+                <div calss="col-sm-12"><p class="msg_erro" style="margin: 0px">Por favor faça login ou cadastre para se inscrever!</p></div>
+            <?php endif; ?>
+			<div class="row">
+
+				<div class="col-sm-2 date-ev" style="margin: 0.3cm">
+                    <h1>
+                        <?php
+                        $maratona = pg_fetch_assoc($resultado_busca_maratonas);
+                        //""gambiarra"" pra pegar a data e hora, cada caractere de "datahora" agora é um indice de $string (que é um vetor)
+                            $string = $maratona ["datahora"];
+                            echo $string[8];
+                            echo $string[9];
+                        ?>
+                    <br>
+                        <?php
+                            echo "/" . $string[5];
+                            echo $string[6];
+                        ?>
+                    </h1>
+                </div>
+				<div class="col-sm-9 descr-ev">
+					<h1 style="font-size: 450%">
+                        <?php
+                            echo $maratona ["nome_evento"];
+                        ?>
+                    </h1>   
+                    <p>Cidade: <?php echo $maratona ["cidade"]; ?></p>
+                    <p>Estado: <?php echo strtoupper($maratona ["estado"]); ?></p>
+                    <p>Horário: 
+                        <?php 
+                            echo $string[10];
+                            echo $string[11]; 
+                            echo $string[12];
+                            echo $string[13];
+                            echo $string[14];
+                            echo $string[15];
+                        ?>
+                    </p>
+                    <p>Local de largada: <?php echo $maratona ["local_saida"]; ?></p>
+                    <p>Local de chegada: <?php echo $maratona ["local_chegada"]; ?></p>
+                    <p>Percurso: </p>
+                    <p>Fim das inscrições: 
+                        <?php 
+                            $string2 = $maratona ["data_fim_inscr"];
+                            echo $string2[8]; 
+                            echo $string2[9]; 
+
+                            echo "/" . $string2[5]; 
+                            echo $string2[6];
+                            echo "/" . $string2[0]; 
+                            echo $string2[1];
+                            echo $string2[2]; 
+                            echo $string2[3]; 
+                        ?></p>
+                    <p>Telefone para contato: 
+                        <?php 
+                            $string3 = $maratona ["fone_contato"];
+                            echo "(" . $string3[0];
+                            echo $string3[1];
+                            echo ") " . $string3[2];
+                            echo $string3[3];
+                            echo $string3[4];
+                            echo $string3[5];
+                            echo $string3[6];
+                            echo "-";
+                            echo $string3[7];
+                            echo $string3[8];
+                            echo $string3[9];
+                            echo $string3[10];
+                        ?>
+                    </p>
+                    <?php if($_SERVER["REQUEST_METHOD"]=="GET" && isset($_GET["inscr"]) && pg_escape_string($_GET["inscr"])==1): ?>
+                        <?php
+                            $dbconn = pg_connect($strconn);
+                            if (!$dbconn)
+                                die("Conexao nao estabelecida.");
+
+                            $sql_kit="SELECT * FROM kits";
+                            $resultado_busca_kits = pg_query($dbconn, $sql_kit);
+                            if (!$resultado_busca_kits) {
+                                die("Problemas no select pendentes.");
+                            }
+
+                            $sql_pgto="SELECT * FROM forma_pgto";
+                            $resultado_busca_pgto = pg_query($dbconn, $sql_pgto);
+                            if (!$resultado_busca_pgto) {
+                                die("Problemas no select pendentes.");
+                            }
+
+                            $sql_modalidade="SELECT * FROM modalidade";
+                            $resultado_busca_modalidade = pg_query($dbconn, $sql_modalidade);
+                            if (!$resultado_busca_modalidade) {
+                                die("Problemas no select pendentes.");
+                            }
+                            pg_close($dbconn);
+                            $forma_pgto=$kit=$modalidade="";
+                        ?>
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <form action="descr_ev_public.php?id=<?php echo $id ?>&inscr=1" method="POST">
+                                    <!--MODALIDADE-->
+                                    <div class="form-group">
+                                    <label for="modalidade"><p>Modalidade</p></label>
+                                    <select class="form-control" id="modalidade" value="<?php echo $modaldiade ?>">
+                                        <?php while($result_modalidade=pg_fetch_assoc($resultado_busca_modalidade)): ?>
+                                            <option><?php echo $result_modalidade["descr"];?></option>
+                                        <?php endwhile; ?>
+                                    </select>
+                                    </div>
+                                    <!--KIT-->
+                                    <div class="form-group">
+                                    <label for="pgto"><p>Kit + Inscrição</p></label>
+                                    <select class="form-control" id="kit" value="<?php echo $kit ?>">
+                                        <?php while($result_kits=pg_fetch_assoc($resultado_busca_kits)): ?>
+                                            <option><?php echo $result_kits["descr_kit"];?> - R$ <?php echo $result_kits["valor_kit"];?>,00</option>
+                                        <?php endwhile; ?>
+                                    </select>
+                                    </div>
+                                    <!--PGTO-->
+                                    <div class="form-group">
+                                    <label for="pgto"><p>Forma de Pagamento</p></label>
+                                    <select class="form-control" id="pgto" value="<?php echo $forma_pgto ?>">
+                                        <?php while($result_pgto=pg_fetch_assoc($resultado_busca_pgto)): ?>
+                                            <option><?php echo $result_pgto["descr_pgto"];?></option>
+                                        <?php endwhile; ?>
+                                    </select>
+                                    </div>
+
+                                    <div class="from-group">
+                                        <button class="btn btn-success" type="submit">Confirmar Inscrição</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    <?php elseif(!isset($_GET["inscr"])): ?>
+                        <a style="color: white" href="descr_ev_public.php?id=<?php echo $id ?>&inscr=1">
+                            <button class="btn btn-success">Inscrever-se</button>
+                        </a>
+                    <?php endif; ?>
+                </div>
+			</div>
+		</div>
+		<?php echo $footer;?>
+    </div>
+</body>
+</html>
