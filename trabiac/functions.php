@@ -10,7 +10,7 @@
 	//fim verificaCampo()
 
 	function conectaBD(){
-		$strconn = "host=localhost port=5432 dbname=makerun user=postgres password=Maruve";
+		$strconn = "host=localhost port=5432 dbname=makerun user=postgres password=";
 
 		$conexao = pg_connect($strconn);
 
